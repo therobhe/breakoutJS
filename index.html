@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Breakout for your Browser">
+    <meta name="author" content="Robert Heinemann">
+    <meta name="keywords" content="Breakout, Games, Game, Classic, Retro, Retro Games">
+    <title>Breakout JavaScript</title>
+    <style>*{padding: 0; margin: 0} canvas{background: #eee; display: block; margin: 0}</style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="480px" height="320px"></canvas>
+
+    <script>
+//-------------CANVAS--DRAW-METHOD-----------------------------------------//
+        //draw canvas
+        var cvs = document.getElementById("myCanvas");
+        var ctx = cvs.getContext("2d");
+//-------------------------------------------------------------------------//
+
+//-------------PADDLE-VARIABLES-AND-DRAW-METHOD----------------------------//
+        //paddle variables
+        var pPosX = cvs.width/2, pPosY = cvs.height-30, WIDTH = 75, HEIGHT = 15;
+        //draw paddle
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(pPosX, pPosY, WIDTH, HEIGHT);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+        }
+//------------------------------------------------------------------------//
+
+//-------------BALL-VARIABLES-AND-DRAW-METHOD-----------------------------//
+        //ball variables: position, radius, speed/direction of movement
+        var bPosX = cvs.width/2, bPosY = cvs.height-30, radius = 10, R = Math.PI*2, dX = 2, dY = -2;
+        //draw ball
+        function drawBall()  {
+            //draw ball
+            ctx.beginPath();
+            ctx.arc(bPosX, bPosY, radius, 0, R, false);
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+            //update position
+            bPosX+=dX;
+            bPosY+=dY;
+        }
+//----------------------------------------------------------------------//
+
+//----------BRICK-VARIABLES-AND-DRAW-CALL-------------------------------//
+        //draw bricks
+//----------------------------------------------------------------------//
+
+//---------------------DRAWING-LOOP-------------------------------------//
+        var REFRESH = 10;   //time in ms to refresh the frames
+        //drawing loop - call the single draw calls
+        function drawLoop()  {
+            //clear context from previous movements (from min(x,y) -> to max(x,y))
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            //draw calls
+            drawBall();
+            drawPaddle();
+        }setInterval(drawLoop, REFRESH);
+//----------------------------------------------------------------------//
+
+//---------------------COLLISION-DETECTION------------------------------//
+        //with canvas
+        //with paddle
+        //with bricks
+//----------------------------------------------------------------------//
+    </script>
+</body>
+</html>
+
