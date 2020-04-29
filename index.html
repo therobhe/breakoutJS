@@ -79,34 +79,37 @@
 //----------------------------------------------------------------------//
 
 //-------------------------BRICK-VARIABLES------------------------------//
-        //brick variables -> 2d array
-        var row = 3, col = 5;
-        var BWIDTH = 75, BHEIGHT = 20, BPADDING = 10, BOFFSETTOP = 30, BOFFSETLEFT = 30;
-        //build brick array for storing the pos
-        var brickwall = [];
-        for (var i = 0; i < col; i++)  {
-            brickwall[i] = [];
-            for (var j = 0; j < row; j++)  {
-                brickwall[i][j] = {brX: 0, brY: 0};
+        var brickRowCount = 3;
+        var brickColumnCount = 5;
+        var brickWidth = 75;
+        var brickHeight = 20;
+        var brickPadding = 10;
+        var brickOffsetTop = 30;
+        var brickOffsetLeft = 30;
+
+        var bricks = [];
+        for (var c = 0; c < brickColumnCount; c++) {
+            bricks[c] = [];
+            for (var r = 0; r < brickRowCount; r++) {
+                bricks[c][r] = { x: 0, y: 0, status: 1 };
             }
         }
 
         //drawcall
-        function drawBricks()  {
-            for (var c = 0; c < col; c++)  {
-                for (var r = 0; r < row; r++)  {
-                    //positioning of bricks in relation to loop steps for 'wall' optic
-                    var brickPosX = (c*(BWIDTH + BPADDING))+BOFFSETLEFT;
-                    var brickPosY = (r*(BHEIGHT + BPADDING))+BOFFSETTOP;
-                    //safe position for collision detection
-                    brickwall[c][r].brX = brickPosX;
-                    brickwall[c][r].brY = brickPosY;
-                    //actually draw the bricks
-                    ctx.beginPath();
-                    ctx.rect(brickPosX, brickPosY, BWIDTH, BHEIGHT);
-                    ctx.fillStyle = "#0095DD";
-                    ctx.fill();
-                    ctx.closePath();
+        function drawBricks() {
+            for (var c = 0; c < brickColumnCount; c++) {
+                for (var r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status == 1) {
+                        var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                        var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].brY = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                        ctx.fillStyle = "#0095DD";
+                        ctx.fill();
+                        ctx.closePath();
+                    }
                 }
             }
         }
@@ -146,14 +149,24 @@
         }
         //with bricks
         function collisionBricks() {
-
+            for (var c = 0; c < brickColumnCount; c++) {
+                for (var r = 0; r < brickRowCount; r++) {
+                    var b = bricks[c][r];
+                    if (b.status == 1) {
+                        if (bPosX > b.x && bPosX < b.x + brickWidth && bPosY > b.y && bPosY < b.y + brickHeight) {
+                            dY = -dY;
+                            b.status = 0;
+                        }
+                    }
+                }
+            }
         }
 
         //collision call
         function collisionDetection() {
             collisionCanvas();
             collisionPaddle();
-            //collisionBricks();
+            collisionBricks();
         }
 //----------------------------------------------------------------------//
 
@@ -171,10 +184,10 @@
             //clear context from previous movements (from min(x,y) -> to max(x,y))
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             //draw calls
-            collisionDetection();
+            drawBricks();
             drawBall();
             drawPaddle();
-            drawBricks();
+            collisionDetection();
         } var interval = setInterval(drawLoop, REFRESH);
 //----------------------------------------------------------------------//
 
