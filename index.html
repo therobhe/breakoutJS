@@ -22,14 +22,42 @@
 
 //-------------PADDLE-VARIABLES-AND-DRAW-METHOD----------------------------//
         //paddle variables
-        var pPosX = cvs.width/2, pPosY = cvs.height-30, WIDTH = 75, HEIGHT = 15;
+        var PWIDTH = 75, PHEIGHT = 15, pPosX = (cvs.width-PWIDTH)/2, MOVESPEED = 5;
         //draw paddle
         function drawPaddle() {
             ctx.beginPath();
-            ctx.rect(pPosX, pPosY, WIDTH, HEIGHT);
+            //handle movement
+            if ((rightPressed == true) && (pPosX + PWIDTH < cvs.width))  {
+                pPosX += MOVESPEED;
+            }
+            if ((leftPressed == true) && (pPosX > 0))  {
+                pPosX -= MOVESPEED;
+            }
+            ctx.rect(pPosX, cvs.height-PHEIGHT, PWIDTH, PHEIGHT);
             ctx.fillStyle = "blue";
             ctx.fill();
             ctx.closePath();
+        }
+//------------------------------------------------------------------------//
+
+//-----------------------------PADDLE-CONTROLS----------------------------//
+        var rightPressed = false, leftPressed = false;
+        //if pressed, change pPos
+        function keyDownHandler(k) {
+            if (k.key == "Right" || k.key == "ArrowRight")  {
+                rightPressed = true;
+            }
+            if (k.key == "Left" || k.key == "ArrowLeft")  {
+                leftPressed = true;
+            }
+        }
+        function keyUpHandler(k) {
+            if(k.key == "Right" || k.key == "ArrowRight")  {
+                rightPressed = false;
+            }
+            if(k.key == "Left" || k.key == "ArrowLeft")  {
+                leftPressed = false;
+            }
         }
 //------------------------------------------------------------------------//
 
@@ -50,27 +78,103 @@
         }
 //----------------------------------------------------------------------//
 
-//----------BRICK-VARIABLES-AND-DRAW-CALL-------------------------------//
-        //draw bricks
+//-------------------------BRICK-VARIABLES------------------------------//
+        //brick variables -> 2d array
+        var row = 3, col = 5;
+        var BWIDTH = 75, BHEIGHT = 20, BPADDING = 10, BOFFSETTOP = 30, BOFFSETLEFT = 30;
+        //build brick array for storing the pos
+        var brickwall = [];
+        for (var i = 0; i < row; i++)  {
+            brickwall[i] = [];
+            for (var j = 0; j < col; j++)  {
+                brickwall[i][j] = {brX: 0, brY: 0};
+            }
+        }
+
+        //drawcall
+        function drawBricks()  {
+            for (var c = 0; c < col; c++)  {
+                for (var r = 0; r < row; r++)  {
+                    var brickPosX = (c*(BWIDTH + BPADDING))+BOFFSETLEFT;
+                    var brickPosY = (r*(BHEIGHT + BPADDING))+BOFFSETTOP;
+                    brickwall[c][r].brX = brickPosX;
+                    brickwall[c][r].brY = brickPosY;
+                    ctx.beginPath();
+                    ctx.rect(brickPosX, brickPosY, BWIDTH, BHEIGHT);
+                    ctx.fillStyle = "#0095DD";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+//----------------------------------------------------------------------//
+
+//---------------------COLLISION-DETECTION------------------------------//
+        //with canvas
+        function collisionCanvas() {
+            //right/left border
+            if (bPosX + dX > cvs.width-radius || bPosX + dX < radius)  {
+                dX = -dX;
+            }
+            //top border
+            else if (bPosY + dY < radius)  {
+                dY = -dY
+            }
+            //hit the floor - lose life and game over
+            else if (bPosY + dY > cvs.height-radius) {
+                lives--;
+                //game over
+                if (!lives)  {
+                    alert("GAME OVER!");
+                    document.location.reload();
+                    clearInterval(interval);
+                }
+                //lose life
+                else  {
+                    alert("Ball dropped! Remaining Lives: " + lives);
+                    bPosX = cvs.width/2; bPosY = cvs.height-30; dX = 2; dY=-2; pPosX = cvs.width/2;
+                }
+            }
+        }
+        //with paddle
+        function collisionPaddle()  {
+            if ((bPosY + dY > cvs.height-PHEIGHT) && (bPosX > pPosX && bPosX < pPosX + PWIDTH))
+                dY = -dY;
+        }
+        //with bricks
+        function collisionBricks() {
+
+        }
+
+        //collision call
+        function collisionDetection() {
+            collisionCanvas();
+            collisionPaddle();
+            //collisionBricks();
+        }
+//----------------------------------------------------------------------//
+
+//---------------------GAME-LOGIC---------------------------------------//
+        var score = 0, lives = 3;
 //----------------------------------------------------------------------//
 
 //---------------------DRAWING-LOOP-------------------------------------//
         var REFRESH = 10;   //time in ms to refresh the frames
         //drawing loop - call the single draw calls
         function drawLoop()  {
+            //enable paddle control
+            document.addEventListener("keydown", keyDownHandler, false);
+            document.addEventListener("keyup", keyUpHandler, false);
             //clear context from previous movements (from min(x,y) -> to max(x,y))
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             //draw calls
+            collisionDetection();
             drawBall();
             drawPaddle();
-        }setInterval(drawLoop, REFRESH);
+            drawBricks();
+        } var interval = setInterval(drawLoop, REFRESH);
 //----------------------------------------------------------------------//
 
-//---------------------COLLISION-DETECTION------------------------------//
-        //with canvas
-        //with paddle
-        //with bricks
-//----------------------------------------------------------------------//
     </script>
 </body>
 </html>
