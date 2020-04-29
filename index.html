@@ -84,9 +84,9 @@
         var BWIDTH = 75, BHEIGHT = 20, BPADDING = 10, BOFFSETTOP = 30, BOFFSETLEFT = 30;
         //build brick array for storing the pos
         var brickwall = [];
-        for (var i = 0; i < row; i++)  {
+        for (var i = 0; i < col; i++)  {
             brickwall[i] = [];
-            for (var j = 0; j < col; j++)  {
+            for (var j = 0; j < row; j++)  {
                 brickwall[i][j] = {brX: 0, brY: 0};
             }
         }
@@ -95,10 +95,13 @@
         function drawBricks()  {
             for (var c = 0; c < col; c++)  {
                 for (var r = 0; r < row; r++)  {
+                    //positioning of bricks in relation to loop steps for 'wall' optic
                     var brickPosX = (c*(BWIDTH + BPADDING))+BOFFSETLEFT;
                     var brickPosY = (r*(BHEIGHT + BPADDING))+BOFFSETTOP;
+                    //safe position for collision detection
                     brickwall[c][r].brX = brickPosX;
                     brickwall[c][r].brY = brickPosY;
+                    //actually draw the bricks
                     ctx.beginPath();
                     ctx.rect(brickPosX, brickPosY, BWIDTH, BHEIGHT);
                     ctx.fillStyle = "#0095DD";
